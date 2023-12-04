@@ -8,12 +8,28 @@ class Account(Base):
 
     id = Column(Integer, Sequence("account_id_seq"), primary_key=True, index=True)
     name = Column(String, index=True)
+    email = Column(String, index=True)
+    password = Column(String, index=True)
+    phone = Column(String, index=True)
 
-    def __init__(self, name):
-        self.name = name
+    @staticmethod
+    def from_dict(dictionary):
 
-    def __repr__(self):
-        return '<User %r>' % self.name
+        return Account(
+            name=dictionary["name"],
+            email=dictionary["email"],
+            password=dictionary["password"],
+            phone=dictionary["phone"]
+        )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "email": self.email,
+            "password": self.password,
+            "phone": self.phone
+        }
 
 
 Base.metadata.create_all(bind=engine)

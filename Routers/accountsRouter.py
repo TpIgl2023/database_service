@@ -1,9 +1,19 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Depends
+from sqlalchemy.orm import Session
 
-router = APIRouter()
+import Handlers.accountsHandlers as accountsHandler
+from database import get_db
+
+accountsRouter = APIRouter()
 
 
+@accountsRouter.post("/create")
+async def create_account(request: Request, db: Session = Depends(get_db)):
+    return await accountsHandler.create_account_handler(request, db)
 
-@router.get("/items/{item_id}")
-def read_item(item_id: int, query_param: str = None):
-    return {"item_id": item_id, "query_param": query_param}
+
+@accountsRouter.get("/")
+async def create_account(request: Request):
+    body = await request.json()
+    return {"message": "Hello accounts router", "body": body}
+
