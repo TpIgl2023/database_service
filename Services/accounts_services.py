@@ -2,10 +2,10 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from Core.Enums.accounts_types import AccountType
-from Models.AccountModel import Account
+from Models.account_model import Account
 from Models.moderator_model import Moderator
 from Models.user_model import User
-from database import get_db
+from Database.database import get_db
 
 
 def create_account(account_json: dict, account_type: AccountType, db: Session = Depends(get_db)):

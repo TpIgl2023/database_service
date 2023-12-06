@@ -1,11 +1,22 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
-from Routers.accountsRouter import accountsRouter
-from Models.AccountModel import Account
-from database import get_db
+from starlette.responses import JSONResponse
+
+from Middlwares.auth_middlewares import authenticate_api_key_middleware
+from Routers.accounts_router import accountsRouter
+from Database.database import get_db
 
 app = FastAPI()
 
+
+@app.middleware("http")
+async def authenticate_api_key(request: Request, call_next):
+    try:
+        authenticate_api_key_middleware(request)
+    except HTTPException as e:
+        return JSONResponse(status_code=e.status_code, content={"message": e.detail})
+    response = await call_next(request)
+    return response
 
 app.include_router(accountsRouter, prefix="/accounts", tags=["accounts"])
 
@@ -13,11 +24,5 @@ app.include_router(accountsRouter, prefix="/accounts", tags=["accounts"])
 @app.get("/")
 async def read_root(request: Request, db: Session = Depends(get_db)):
     body = await request.json()
-
-    print(type(db))
-    account = Account(name=body["name"], email=body["email"], password=body["password"], phone=body["phone"])
-    db.add(account)
-    db.commit()
-    db.refresh(account)
-    return account
+    return {"body": body, "message": "Hello World"}
 

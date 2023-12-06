@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy.orm import Session
 
-import Handlers.accountsHandlers as accountsHandler
-from database import get_db
+import Handlers.accounts_handlers as accountsHandler
+from Database.database import get_db
 
 accountsRouter = APIRouter()
 

@@ -2,7 +2,7 @@ from flask import Request
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-import Services.accountsServices as accountsServices
+import Services.accounts_services as accountsServices
 from Core.Enums.accounts_types import AccountType
 
 
