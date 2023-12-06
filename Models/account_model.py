@@ -1,4 +1,6 @@
 from sqlalchemy import Column, Integer, String, Sequence
+from sqlalchemy.orm import relationship
+
 from Database.database import Base, engine
 
 
@@ -11,6 +13,10 @@ class Account(Base):
     email = Column(String, index=True)
     password = Column(String, index=True)
     phone = Column(String, index=True)
+
+    user = relationship("User", back_populates="account", cascade="delete, delete-orphan")
+    moderator = relationship("Moderator", back_populates="account", cascade="delete, delete-orphan")
+    administrator = relationship("Administrator", back_populates="account", cascade="delete, delete-orphan")
 
     @staticmethod
     def from_dict(dictionary):
