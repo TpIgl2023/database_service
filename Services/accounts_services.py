@@ -181,10 +181,12 @@ def get_account_by_id(account_id: int, db: Session):
 
 
 def get_moderators(db: Session):
-    mods = db.query(Account).filter(Account.moderator.any()).all()
+
+    mods = db.query(Moderator).all()
+
     mods_json = []
     for mod in mods:
-        mods_json.append(mod.to_dict())
+        mods_json.append(mod.account.to_dict())
     return mods_json
 
 
