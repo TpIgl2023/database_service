@@ -17,6 +17,7 @@ def create_account(account_json: dict, account_type: AccountType, db: Session):
         account = _create_account(account_json, db)
 
         if account_type == AccountType.USER:
+
             _create_user(account.id, db)
         elif account_type == AccountType.MODERATOR:
             _create_moderator(account.id, db)
@@ -24,7 +25,7 @@ def create_account(account_json: dict, account_type: AccountType, db: Session):
         db.commit()
         db.flush()
 
-    return account
+    return account.to_dict()
 
 '''
 def create_user(account_json: dict, db: Session ):
@@ -160,18 +161,19 @@ def update_account(modified_account_json: dict, db: Session):
     fields = ["name", "email", "password", "phone"]
 
     for field in fields:
-        _check_and_midify_field(original_account, modified_account_json, field)
+        _check_and_modify_field(original_account, modified_account_json, field)
 
     db.commit()
 
     return original_account
 
 
+
 def _check_field_existence(json: dict, field: str):
     return field in json.keys() and json[field] is not None
 
 
-def _check_and_midify_field(original: Account, modified: dict, field: str):
+def _check_and_modify_field(original: Account, modified: dict, field: str):
     if _check_field_existence(modified, field):
         original.name = modified[field]
 

@@ -1,4 +1,4 @@
-from Models import account_model, admin_model, moderator_model, user_model
+from Models import account_model, admin_model, moderator_model,  user_model, favorite_model, article_model
 from fastapi import FastAPI, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
