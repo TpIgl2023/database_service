@@ -61,7 +61,7 @@ async def delete_account_handler(request: Request, db: Session):
 async def update_account_handler(request: Request, db: Session):
     try:
         body = await request.json()
-        modified_account = await accounts_services.update_account(body, db)
+        modified_account = accounts_services.update_account(body, db)
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account updated successfully",
@@ -103,6 +103,45 @@ def get_moderators(db: Session):
         return JSONResponse(status_code=400,
                             content={
                                 "message": "Error while retrieving moderators",
+                                "error": str(e)
+                            })
+
+
+def check_email_existence_handler(request: Request, db: Session):
+    try:
+
+        email = request.headers.get("email")
+
+        is_exist = accounts_services.check_email_existence(email, db)
+
+        return JSONResponse(status_code=200,
+                            content={
+                                "message": "Email checked successfully",
+                                "is_exist": is_exist
+                            })
+    except Exception as e:
+        return JSONResponse(status_code=400,
+                            content={
+                                "message": "Error while checking email",
+                                "error": str(e)
+                            })
+
+
+async def get_accounts_handler(request: Request, db: Session):
+    try:
+
+        body = await request.json()
+
+        accounts = accounts_services.get_accounts(body, db)
+        return JSONResponse(status_code=200,
+                            content={
+                                "message": "Accounts retrieved successfully",
+                                "accounts": accounts
+                            })
+    except Exception as e:
+        return JSONResponse(status_code=400,
+                            content={
+                                "message": "Error while retrieving accounts",
                                 "error": str(e)
                             })
 

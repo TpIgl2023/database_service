@@ -1,10 +1,11 @@
-from Models import account_model, admin_model, moderator_model,  user_model, favorite_model, article_model
+from Models import account_model, admin_model, moderator_model,  user_model, article_model, favorite_model
 from fastapi import FastAPI, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 from Middlwares.auth_middlewares import authenticate_api_key_middleware
 from Routers.accounts_router import accountsRouter
+from Routers.articles_router import articlesRouter
 from Database.database import get_db
 
 app = FastAPI()
@@ -20,6 +21,7 @@ async def authenticate_api_key(request: Request, call_next):
     return response
 
 app.include_router(accountsRouter, prefix="/accounts", tags=["accounts"])
+app.include_router(articlesRouter, prefix="/articles", tags=["articles"])
 
 
 @app.get("/")

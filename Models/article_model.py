@@ -17,6 +17,11 @@ class Article(Base):
     pdfUrl = Column(String, nullable=False)
     references = Column(String, nullable=False)
 
+    favorite_by = relationship(
+        "User",
+        secondary="favorites",
+        back_populates="favorite_articles",
+    )
 
     @staticmethod
     def from_dict(article_json: dict):

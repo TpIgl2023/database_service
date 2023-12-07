@@ -14,9 +14,9 @@ class Account(Base):
     password = Column(String, index=True)
     phone = Column(String, index=True)
 
-    user = relationship("User", back_populates="account", cascade="delete, delete-orphan")
-    moderator = relationship("Moderator", back_populates="account", cascade="delete, delete-orphan")
-    administrator = relationship("Administrator", back_populates="account", cascade="delete, delete-orphan")
+    user = relationship("User", back_populates="account", cascade="all, delete-orphan")
+    moderator = relationship("Moderator", back_populates="account", cascade="all, delete-orphan")
+    administrator = relationship("Administrator", back_populates="account", cascade="all, delete-orphan")
 
     @staticmethod
     def from_dict(dictionary):
