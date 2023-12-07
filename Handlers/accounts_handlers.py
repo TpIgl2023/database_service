@@ -42,3 +42,20 @@ async def delete_account_handler(request: Request, db: Session):
                                 "message": "Error while deleting account",
                                 "error": str(e)
                             })
+
+
+async def update_account_handler(request: Request, db: Session):
+    try:
+        body = await request.json()
+        modified_account = await accountsServices.update_account(body, db)
+        return JSONResponse(status_code=200,
+                            content={
+                                "message": "Account updated successfully",
+                                "body": modified_account
+                            })
+    except Exception as e:
+        return JSONResponse(status_code=400,
+                            content={
+                                "message": "Error while updating account",
+                                "error": str(e)
+                            })

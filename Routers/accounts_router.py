@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 import Handlers.accounts_handlers as accounts_handler
 from Database.database import get_db
+from Models.account_model import Account
 
 accountsRouter = APIRouter()
 
@@ -15,6 +16,11 @@ async def create_account(request: Request, db: Session = Depends(get_db)):
 @accountsRouter.delete("/delete")
 async def delete_account(request: Request, db: Session = Depends(get_db)):
     return await accounts_handler.delete_account_handler(request, db)
+
+
+@accountsRouter.put("/update")
+async def update_account(request: Request, db: Session = Depends(get_db)):
+    return await accounts_handler.update_account_handler(request, db)
 
 
 

@@ -1,4 +1,3 @@
-from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from Core.Enums.accounts_types import AccountType
@@ -6,7 +5,9 @@ from Models.account_model import Account
 from Models.moderator_model import Moderator
 from Models.user_model import User
 
-
+'''
+    Account creation functions
+'''
 def create_account(account_json: dict, account_type: AccountType, db: Session):
 
     assert (account_type is not None) and (account_type in AccountType), "Invalid account type"
@@ -51,6 +52,9 @@ def _create_moderator(_id: int, db: Session):
     return mod
 
 
+'''
+    Account deletion functions
+'''
 def delete_account(account_id: int, db: Session):
 
     assert account_id is not None, "Invalid account json"
@@ -90,4 +94,37 @@ def _delete_moderator(account_id: int, db: Session):
     db.delete(mod)
 
     return mod
+
+
+'''
+    Account modification functions 
+'''
+
+
+async def update_account(modified_account_json: dict, db: Session):
+    assert modified_account_json is not None, "Invalid account json"
+    assert modified_account_json["id"] is not None, "Invalid account id"
+
+    original_account = db.query(Account).filter_by(id=modified_account_json["id"]).first()
+
+    assert original_account, "Account not found"
+
+    fields = ["name", "email", "password", "phone"]
+
+    for field in fields:
+        _check_and_midify_field(original_account, modified_account_json, field)
+
+    db.commit()
+
+    return original_account
+
+
+def _check_field_existence(json: dict, field: str):
+    return field in json.keys() and json[field] is not None
+
+
+def _check_and_midify_field(original: Account, modified: dict, field: str):
+    if _check_field_existence(modified, field):
+        original.name = modified[field]
+
 
