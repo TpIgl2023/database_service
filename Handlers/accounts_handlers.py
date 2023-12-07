@@ -11,15 +11,18 @@ async def create_account_handler(request: Request, db: Session):
 
         assert body is not None, "Invalid body"
         assert "account_type" in request.headers, "Invalid account type"
-        assert "admin_id" in request.headers, "Invalid admin id"
 
         account_type = AccountType(request.headers["account_type"])
-        admin_id = int(request.headers["admin_id"])
 
         if account_type == AccountType.USER:
             account = accountsServices.create_user(body, db)
-        else:
+        elif account_type == AccountType.MODERATOR:
+
+            assert "admin_id" in request.headers, "Invalid admin id"
+            admin_id = int(request.headers["admin_id"])
             account = accountsServices.create_moderator(body, admin_id, db)
+        elif account_type == AccountType.ADMINISTRATOR:
+            account = accountsServices.create_administrator(body, db)
 
         return JSONResponse(status_code=200,
                             content={

@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from Core.Enums.accounts_types import AccountType
 from Models.account_model import Account
+from Models.admin_model import Administrator
 from Models.moderator_model import Moderator
 from Models.user_model import User
 
@@ -12,7 +13,6 @@ from Models.user_model import User
 
 def create_user(account_json: dict, db: Session, ):
 
-    assert account_json is not None, "Invalid account json"
     with db.begin():
 
         account = _create_account(account_json, db)
@@ -26,12 +26,24 @@ def create_user(account_json: dict, db: Session, ):
 
 
 def create_moderator(account_json: dict, admin_id: int, db: Session):
-    assert account_json is not None, "Invalid account json"
     with db.begin():
 
         account = _create_account(account_json, db)
 
         _create_moderator(account.id, admin_id, db)
+
+        db.commit()
+        db.flush()
+
+    return account
+
+
+def create_administrator(account_json: dict, db: Session):
+    with db.begin():
+
+        account = _create_account(account_json, db)
+
+        _create_administrator(account.id, db)
 
         db.commit()
         db.flush()
@@ -59,6 +71,13 @@ def _create_moderator(_id: int, admin_id: int, db: Session):
     mod = Moderator(id=_id, admin_id=admin_id)
     db.add(mod)
     return mod
+
+
+def _create_administrator(_id: int, db: Session):
+
+    admin = Administrator(id=_id)
+    db.add(admin)
+    return admin
 
 
 '''
