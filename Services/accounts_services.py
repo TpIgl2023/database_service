@@ -8,26 +8,35 @@ from Models.user_model import User
 '''
     Account creation functions
 '''
-def create_account(account_json: dict, account_type: AccountType, db: Session):
 
-    assert (account_type is not None) and (account_type in AccountType), "Invalid account type"
+
+def create_user(account_json: dict, db: Session, ):
+
     assert account_json is not None, "Invalid account json"
     with db.begin():
 
         account = _create_account(account_json, db)
 
-        if account_type == AccountType.USER:
-
-            _create_user(account.id, db)
-
-        else:
-
-            _create_moderator(account.id, db)
+        _create_user(account.id, db)
 
         db.commit()
         db.flush()
 
-    return account, account_type
+    return account
+
+
+def create_moderator(account_json: dict, admin_id: int, db: Session):
+    assert account_json is not None, "Invalid account json"
+    with db.begin():
+
+        account = _create_account(account_json, db)
+
+        _create_moderator(account.id, admin_id, db)
+
+        db.commit()
+        db.flush()
+
+    return account
 
 
 def _create_account(account_json: dict, db: Session):
@@ -45,9 +54,9 @@ def _create_user(_id: int, db: Session):
     return user
 
 
-def _create_moderator(_id: int, db: Session):
+def _create_moderator(_id: int, admin_id: int, db: Session):
 
-    mod = Moderator(id=_id)
+    mod = Moderator(id=_id, admin_id=admin_id)
     db.add(mod)
     return mod
 

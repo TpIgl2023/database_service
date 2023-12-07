@@ -9,9 +9,18 @@ async def create_account_handler(request: Request, db: Session):
     try:
         body = await request.json()
 
-        account_type = AccountType(request.headers["account_type"])
+        assert body is not None, "Invalid body"
+        assert "account_type" in request.headers, "Invalid account type"
+        assert "admin_id" in request.headers, "Invalid admin id"
 
-        account, account_type = accountsServices.create_account(body, account_type, db)
+        account_type = AccountType(request.headers["account_type"])
+        admin_id = int(request.headers["admin_id"])
+
+        if account_type == AccountType.USER:
+            account = accountsServices.create_user(body, db)
+        else:
+            account = accountsServices.create_moderator(body, admin_id, db)
+
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account created successfully",
