@@ -11,7 +11,23 @@ from Models.user_model import User
 '''
 
 
-def create_user(account_json: dict, db: Session, ):
+def create_account(account_json: dict, account_type: AccountType, db: Session):
+    with db.begin():
+
+        account = _create_account(account_json, db)
+
+        if account_type == AccountType.USER:
+            _create_user(account.id, db)
+        elif account_type == AccountType.MODERATOR:
+            _create_moderator(account.id, db)
+
+        db.commit()
+        db.flush()
+
+    return account
+
+'''
+def create_user(account_json: dict, db: Session ):
 
     with db.begin():
 
@@ -25,19 +41,19 @@ def create_user(account_json: dict, db: Session, ):
     return account
 
 
-def create_moderator(account_json: dict, admin_id: int, db: Session):
+def create_moderator(account_json: dict, db: Session):
     with db.begin():
 
         account = _create_account(account_json, db)
 
-        _create_moderator(account.id, admin_id, db)
+        _create_moderator(account.id, db)
 
         db.commit()
         db.flush()
 
     return account
 
-
+'''
 def create_administrator(account_json: dict, db: Session):
     with db.begin():
 
@@ -54,6 +70,7 @@ def create_administrator(account_json: dict, db: Session):
 def _create_account(account_json: dict, db: Session):
 
     account = Account.from_dict(account_json)
+
     db.add(account)
     db.flush()
 
@@ -66,9 +83,9 @@ def _create_user(_id: int, db: Session):
     return user
 
 
-def _create_moderator(_id: int, admin_id: int, db: Session):
+def _create_moderator(_id: int, db: Session):
 
-    mod = Moderator(id=_id, admin_id=admin_id)
+    mod = Moderator(id=_id)
     db.add(mod)
     return mod
 
@@ -83,6 +100,8 @@ def _create_administrator(_id: int, db: Session):
 '''
     Account deletion functions
 '''
+
+
 def delete_account(account_id: int, db: Session):
 
     assert account_id is not None, "Invalid account json"
@@ -124,12 +143,13 @@ def _delete_moderator(account_id: int, db: Session):
     return mod
 
 
+
 '''
     Account modification functions 
 '''
 
 
-async def update_account(modified_account_json: dict, db: Session):
+def update_account(modified_account_json: dict, db: Session):
     assert modified_account_json is not None, "Invalid account json"
     assert modified_account_json["id"] is not None, "Invalid account id"
 
@@ -154,5 +174,7 @@ def _check_field_existence(json: dict, field: str):
 def _check_and_midify_field(original: Account, modified: dict, field: str):
     if _check_field_existence(modified, field):
         original.name = modified[field]
+
+
 
 

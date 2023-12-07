@@ -9,7 +9,6 @@ class Moderator(Base):
     __tablename__ = "moderators"
 
     id = Column(Integer, ForeignKey('accounts.id'), primary_key=True, index=True)
-    admin_id = Column(Integer, ForeignKey('administrators.id'), index=True)
 
     account = relationship("Account", back_populates="moderator")
 

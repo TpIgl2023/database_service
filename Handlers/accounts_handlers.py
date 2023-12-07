@@ -1,7 +1,7 @@
 from flask import Request
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
-import Services.accounts_services as accountsServices
+import Services.accounts_services as accounts_services
 from Core.Enums.accounts_types import AccountType
 
 
@@ -14,15 +14,12 @@ async def create_account_handler(request: Request, db: Session):
 
         account_type = AccountType(request.headers["account_type"])
 
-        if account_type == AccountType.USER:
-            account = accountsServices.create_user(body, db)
-        elif account_type == AccountType.MODERATOR:
-
-            assert "admin_id" in request.headers, "Invalid admin id"
-            admin_id = int(request.headers["admin_id"])
-            account = accountsServices.create_moderator(body, admin_id, db)
+        if account_type == AccountType.USER or account_type == AccountType.MODERATOR:
+            account = accounts_services.create_account(body, account_type, db)
         elif account_type == AccountType.ADMINISTRATOR:
-            account = accountsServices.create_administrator(body, db)
+            account = accounts_services.create_administrator(body, db)
+        else:
+            raise Exception("Invalid account type")
 
         return JSONResponse(status_code=200,
                             content={
@@ -40,9 +37,14 @@ async def create_account_handler(request: Request, db: Session):
 
 async def delete_account_handler(request: Request, db: Session):
     try:
-        account_id = request.headers["id"]
+        account_id = int(request.headers["id"])
+        account_type = AccountType(request.headers["account_type"])
 
-        accountsServices.delete_account(account_id,  db)
+        if account_type != AccountType.ADMINISTRATOR:
+            accounts_services.delete_account(account_id, db)
+        else:
+            accounts_services.delete_account(account_id, db)
+
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account deleted successfully",
@@ -59,7 +61,7 @@ async def delete_account_handler(request: Request, db: Session):
 async def update_account_handler(request: Request, db: Session):
     try:
         body = await request.json()
-        modified_account = await accountsServices.update_account(body, db)
+        modified_account = await accounts_services.update_account(body, db)
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account updated successfully",

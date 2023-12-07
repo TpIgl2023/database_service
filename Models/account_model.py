@@ -20,7 +20,6 @@ class Account(Base):
 
     @staticmethod
     def from_dict(dictionary):
-
         return Account(
             name=dictionary["name"],
             email=dictionary["email"],
