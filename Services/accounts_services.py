@@ -176,5 +176,17 @@ def _check_and_midify_field(original: Account, modified: dict, field: str):
         original.name = modified[field]
 
 
+def get_account_by_id(account_id: int, db: Session):
+    return db.query(Account).filter(Account.id == account_id).first()
+
+
+def get_moderators(db: Session):
+    mods = db.query(Account).filter(Account.moderator.any()).all()
+    mods_json = []
+    for mod in mods:
+        mods_json.append(mod.to_dict())
+    return mods_json
+
+
 
 

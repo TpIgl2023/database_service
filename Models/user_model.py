@@ -12,5 +12,4 @@ class User(Base):
 
     account = relationship("Account", back_populates="user")
 
-
 Base.metadata.create_all(bind=engine)

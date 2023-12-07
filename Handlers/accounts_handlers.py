@@ -24,7 +24,7 @@ async def create_account_handler(request: Request, db: Session):
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account created successfully",
-                                "account": account.to_dict(),
+                                "account": account,
                                 "account_type": account_type.value
                             })
     except Exception as e:
@@ -65,7 +65,7 @@ async def update_account_handler(request: Request, db: Session):
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account updated successfully",
-                                "body": modified_account
+                                "body": modified_account.to_dict()
                             })
     except Exception as e:
         return JSONResponse(status_code=400,
@@ -73,3 +73,36 @@ async def update_account_handler(request: Request, db: Session):
                                 "message": "Error while updating account",
                                 "error": str(e)
                             })
+
+
+def get_account_by_id_handler(account_id: int, db: Session):
+    try:
+        account = accounts_services.get_account_by_id(account_id, db)
+        return JSONResponse(status_code=200,
+                            content={
+                                "message": "Account retrieved successfully",
+                                "account": account.to_dict()
+                            })
+    except Exception as e:
+        return JSONResponse(status_code=400,
+                            content={
+                                "message": "Error while retrieving account",
+                                "error": str(e)
+                            })
+
+
+def get_moderators(db: Session):
+    try:
+        moderators = accounts_services.get_moderators(db)
+        return JSONResponse(status_code=200,
+                            content={
+                                "message": "Moderators retrieved successfully",
+                                "moderators": moderators
+                            })
+    except Exception as e:
+        return JSONResponse(status_code=400,
+                            content={
+                                "message": "Error while retrieving moderators",
+                                "error": str(e)
+                            })
+
