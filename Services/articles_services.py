@@ -4,6 +4,7 @@ from Core.shared import check_field_existence
 from Models.article_model import Article
 from Models.favorite_model import Favorite
 from Models.user_model import User
+from datetime import date
 
 PAGE_SIZE = 12
 
@@ -24,7 +25,8 @@ def get_article_by_id(article_id: int, db: Session):
 
 
 def get_articles(db: Session):
-    articles = db.query(Article).all()
+    articles = db.query(Article).order_by(Article.publishDate.desc()).all()
+
     articles_json = []
     for article in articles:
         articles_json.append(article.to_dict())
@@ -33,7 +35,7 @@ def get_articles(db: Session):
 
 
 def get_articles_by_page(page: int, db: Session):
-    articles = db.query(Article).offset(page*PAGE_SIZE).limit(PAGE_SIZE).all()
+    articles = db.query(Article).offset(page*PAGE_SIZE).limit(PAGE_SIZE).order_by(Article.publishDate.desc()).all()
 
     articles_json = []
     for article in articles:
@@ -87,6 +89,8 @@ def _update_article(article_modifications_json: dict, db: Session):
         original_account.pdfUrl = article_modifications_json["pdfUrl"]
     if check_field_existence(article_modifications_json, "references"):
         original_account.references = article_modifications_json["references"]
+    if check_field_existence(article_modifications_json, "publishDate"):
+        original_account.publishDate = date.fromisoformat(article_modifications_json["publishDate"])
 
     return original_account
 
@@ -136,15 +140,29 @@ def get_favorite_articles(user_id: int, db: Session):
 
     assert user, "Account not found"
 
+    from operator import attrgetter
     articles_json = []
-    for article in user.favorite_articles:
+    for article in sorted(user.favorite_articles, key = attrgetter("publishDate"), reverse=True):
+        articles_json.append(article.to_dict())
+
+    return articles_json
+
+
+def get_favorite_articles_by_page(user_id: int, page: int, db: Session):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    assert user, "Account not found"
+
+    from operator import attrgetter
+    articles_json = []
+    for article in sorted(user.favorite_articles, key = attrgetter("publishDate"), reverse=True)[PAGE_SIZE*page:PAGE_SIZE*(page+1)]:
         articles_json.append(article.to_dict())
 
     return articles_json
 
 
 def get_articles_by_ids(articles_ids: list, db: Session):
-    articles = db.query(Article).filter(Article.id.in_(articles_ids)).all()
+    articles = db.query(Article).filter(Article.id.in_(articles_ids)).order_by(Article.publishDate.desc()).all()
 
     articles_json = []
     for article in articles:

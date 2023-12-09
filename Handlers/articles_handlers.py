@@ -149,8 +149,11 @@ def delete_favorite_article_handler(request: Request, db: Session):
 
 def get_favorite_articles_handler(request: Request, db: Session):
     try:
-
-        articles = articles_services.get_favorite_articles(request.headers.get("user_id"), db)
+        if "page" in request.headers.keys():
+            articles = articles_services.get_favorite_articles_by_page(request.headers.get("user_id"),
+                                                                       int(request.headers.get("page")), db)
+        else :
+            articles = articles_services.get_favorite_articles(request.headers.get("user_id"), db)
 
         return JSONResponse(status_code=200,
                             content={

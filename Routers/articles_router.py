@@ -40,7 +40,7 @@ async def remove_favorite(request: Request, db: Session = Depends(get_db)):
 
 @articlesRouter.get("/getFavorites")
 async def get_favorites(request: Request, db: Session = Depends(get_db)):
-    return await articles_handler.get_favorite_articles_handler(request, db)
+    return articles_handler.get_favorite_articles_handler(request, db)
 
 
 @articlesRouter.get("/getArticlesByIds")
