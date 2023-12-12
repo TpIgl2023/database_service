@@ -153,9 +153,16 @@ def get_favorite_articles_by_page(user_id: int, page: int, db: Session):
 
     assert user, "Account not found"
 
-    from operator import attrgetter
+    favorites = db.query(Favorite).filter(Favorite.user_id == user_id).offset(page*PAGE_SIZE).limit(PAGE_SIZE).all()
+
+    articles_ids = []
+    for favorite in favorites:
+        articles_ids.append(favorite.article_id)
+
+    articles = db.query(Article).filter(Article.id.in_(articles_ids)).order_by(Article.publishDate.desc()).all()
+
     articles_json = []
-    for article in sorted(user.favorite_articles, key = attrgetter("publishDate"), reverse=True)[PAGE_SIZE*page:PAGE_SIZE*(page+1)]:
+    for article in articles:
         articles_json.append(article.to_dict())
 
     return articles_json

@@ -15,5 +15,4 @@ class Favorite(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
 
 
-
 Base.metadata.create_all(bind=engine)
