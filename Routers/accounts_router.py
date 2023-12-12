@@ -25,7 +25,6 @@ async def update_account(request: Request, db: Session = Depends(get_db)):
 
 @accountsRouter.get("/moderators")
 async def get_moderators(db: Session = Depends(get_db)):
-
     return accounts_handler.get_moderators(db)
 
 

@@ -13,6 +13,7 @@ from Database.database import get_db
 app = FastAPI()
 
 
+@app.middleware("http")
 async def authenticate_api_key(request: Request, call_next):
     try:
         authenticate_api_key_middleware(request)
