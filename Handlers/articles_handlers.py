@@ -173,7 +173,7 @@ async def get_articles_by_ids_handler(request: Request, db: Session):
 
         body = await request.json()
 
-        articles = articles_services.get_articles_by_ids(body["ids"], db)
+        articles = articles_services.get_articles_by_ids(body, db)
 
         return JSONResponse(status_code=200,
                             content={

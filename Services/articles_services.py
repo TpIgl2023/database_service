@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import and_
 
 from Core.shared import check_field_existence
 from Models.article_model import Article
@@ -73,22 +74,22 @@ def _update_article(article_modifications_json: dict, db: Session):
 
     assert original_account, "Article not found"
 
-    fields = ["title", "resume", "authors", "keywords", "text", "pdfUrl", "references"]
-
     if check_field_existence(article_modifications_json, "title"):
         original_account.title = article_modifications_json["title"]
     if check_field_existence(article_modifications_json, "resume"):
         original_account.resume = article_modifications_json["resume"]
     if check_field_existence(article_modifications_json, "authors"):
-        original_account.authors = article_modifications_json["authors"]
+        original_account.authors = "|".join(article_modifications_json["authors"])
+    if check_field_existence(article_modifications_json, "institutions"):
+        original_account.authors = "|".join(article_modifications_json["institutions"])
     if check_field_existence(article_modifications_json, "keywords"):
-        original_account.keywords = article_modifications_json["keywords"]
+        original_account.keywords = "|".join(article_modifications_json["keywords"])
     if check_field_existence(article_modifications_json, "text"):
         original_account.text = article_modifications_json["text"]
     if check_field_existence(article_modifications_json, "pdfUrl"):
         original_account.pdfUrl = article_modifications_json["pdfUrl"]
     if check_field_existence(article_modifications_json, "references"):
-        original_account.references = article_modifications_json["references"]
+        original_account.references = "|".join(article_modifications_json["references"])
     if check_field_existence(article_modifications_json, "publishDate"):
         original_account.publishDate = date.fromisoformat(article_modifications_json["publishDate"])
 
@@ -168,11 +169,35 @@ def get_favorite_articles_by_page(user_id: int, page: int, db: Session):
     return articles_json
 
 
-def get_articles_by_ids(articles_ids: list, db: Session):
-    articles = db.query(Article).filter(Article.id.in_(articles_ids)).order_by(Article.publishDate.desc()).all()
+def get_articles_by_ids(filter_json: dict, db: Session):
+
+    articles_filter = _build_articles_filter(filter_json)
+
+    articles = db.query(Article).filter(articles_filter).order_by(Article.publishDate.desc()).all()
 
     articles_json = []
     for article in articles:
         articles_json.append(article.to_dict())
 
     return articles_json
+
+
+def _build_articles_filter(filter_json):
+    account_filter = Article.id.in_(filter_json["ids"])
+
+    if check_field_existence(filter_json, "publishDate"):
+        account_filter = and_(account_filter, Article.publishDate.between(date.fromisoformat(filter_json["publishDate"]["from"]), date.fromisoformat(filter_json["publishDate"]["to"])))
+    if check_field_existence(filter_json, "authors"):
+        authors = "|".join(filter_json["authors"])
+        account_filter = and_(account_filter, Article.authors.like(f"%{authors}%"))
+    if check_field_existence(filter_json, "keywords"):
+        keywords = "|".join(filter_json["keywords"])
+        account_filter = and_(account_filter, Article.keywords.like(f"%{keywords}%"))
+    if check_field_existence(filter_json, "references"):
+        references = "|".join(filter_json["references"])
+        account_filter = and_(account_filter, Article.references.like(f"%{references}%"))
+    if check_field_existence(filter_json, "institutions"):
+        institutions = "|".join(filter_json["references"])
+        account_filter = and_(account_filter, Article.references.like(f"%{institutions}%"))
+
+    return account_filter

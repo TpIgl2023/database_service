@@ -65,7 +65,7 @@ async def update_account_handler(request: Request, db: Session):
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account updated successfully",
-                                "body": modified_account.to_dict()
+                                "modified_account": modified_account.to_dict()
                             })
     except Exception as e:
         return JSONResponse(status_code=400,
