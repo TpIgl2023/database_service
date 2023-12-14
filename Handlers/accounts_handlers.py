@@ -2,12 +2,14 @@ from fastapi import Request
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 import Services.accounts_services as accounts_services
+from Core.shared import get_request_body
 from Core.Enums.accounts_types import AccountType
 
 
 async def create_account_handler(request: Request, db: Session):
     try:
-        body = await request.json()
+
+        body = await get_request_body(request)
 
         assert body is not None, "Invalid body"
         assert "account_type" in request.headers, "Invalid account type"
@@ -60,7 +62,9 @@ async def delete_account_handler(request: Request, db: Session):
 
 async def update_account_handler(request: Request, db: Session):
     try:
-        body = await request.json()
+
+        body = await get_request_body(request)
+
         modified_account = accounts_services.update_account(body, db)
         return JSONResponse(status_code=200,
                             content={
@@ -130,7 +134,7 @@ def check_email_existence_handler(request: Request, db: Session):
 async def get_accounts_handler(request: Request, db: Session):
     try:
 
-        body = await request.json()
+        body = await get_request_body(request)
 
         accounts = accounts_services.get_accounts(body, db)
         return JSONResponse(status_code=200,

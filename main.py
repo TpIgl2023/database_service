@@ -1,6 +1,8 @@
+from Core.shared import get_request_body
 from Models import account_model, admin_model, moderator_model,  user_model, article_model, favorite_model
 from fastapi import FastAPI, Request, HTTPException, Depends
 from sqlalchemy.orm import Session
+import json
 from starlette.responses import JSONResponse
 from datetime import date
 from sqlalchemy import Date
@@ -12,7 +14,7 @@ from Database.database import get_db
 
 app = FastAPI()
 
-'''
+
 @app.middleware("http")
 async def authenticate_api_key(request: Request, call_next):
     try:
@@ -21,12 +23,13 @@ async def authenticate_api_key(request: Request, call_next):
         return JSONResponse(status_code=e.status_code, content={"message": e.detail})
     response = await call_next(request)
     return response
-'''
+
 app.include_router(accountsRouter, prefix="/accounts", tags=["accounts"])
 app.include_router(articlesRouter, prefix="/articles", tags=["articles"])
 
 
 @app.get("/")
 async def read_root(request: Request, db: Session = Depends(get_db)):
-    body = await request.json()
+    body = await get_request_body(request)
+    print(request.headers)
     return {"body": body, "message": "Hello World"}
