@@ -1,5 +1,4 @@
-from fastapi import HTTPException
-from flask import Request
+from fastapi import HTTPException, Request
 
 from Services.auth_services import authenticate_api_key
 
