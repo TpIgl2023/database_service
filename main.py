@@ -12,7 +12,7 @@ from Database.database import get_db
 
 app = FastAPI()
 
-
+'''
 @app.middleware("http")
 async def authenticate_api_key(request: Request, call_next):
     try:
@@ -21,7 +21,7 @@ async def authenticate_api_key(request: Request, call_next):
         return JSONResponse(status_code=e.status_code, content={"message": e.detail})
     response = await call_next(request)
     return response
-
+'''
 app.include_router(accountsRouter, prefix="/accounts", tags=["accounts"])
 app.include_router(articlesRouter, prefix="/articles", tags=["articles"])
 
