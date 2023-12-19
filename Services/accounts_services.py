@@ -218,11 +218,11 @@ def get_accounts(filter_json: dict, db: Session):
 def _build_account_filter(filter_json):
     account_filter = True
     if check_field_existence(filter_json, "name"):
-        account_filter = and_(account_filter, Account.name == filter_json["name"])
+        account_filter = and_(account_filter, Account.name.ilike(filter_json["name"]))
     if check_field_existence(filter_json, "email"):
-        account_filter = and_(account_filter, Account.email == filter_json["email"])
+        account_filter = and_(account_filter, Account.email.ilike(filter_json["email"]))
     if check_field_existence(filter_json, "phone"):
-        account_filter = and_(account_filter, Account.phone == filter_json["phone"])
+        account_filter = and_(account_filter, Account.phone.ilike(filter_json["phone"]))
     if check_field_existence(filter_json, "id"):
         account_filter = and_(account_filter, Account.id.in_(filter_json["id"]))
 
