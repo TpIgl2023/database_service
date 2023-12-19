@@ -224,6 +224,6 @@ def _build_account_filter(filter_json):
     if check_field_existence(filter_json, "phone"):
         account_filter = and_(account_filter, Account.phone == filter_json["phone"])
     if check_field_existence(filter_json, "id"):
-        account_filter = and_(account_filter, Account.id == filter_json["id"])
+        account_filter = and_(account_filter, Account.id.in_(filter_json["id"]))
 
     return account_filter
