@@ -87,7 +87,7 @@ def get_account_by_id_handler(account_id: int, db: Session):
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account retrieved successfully",
-                                "account": account.to_dict()
+                                "account": account
                             })
     except Exception as e:
         return JSONResponse(status_code=400,

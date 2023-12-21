@@ -58,6 +58,8 @@ def create_moderator(account_json: dict, db: Session):
     return account
 
 '''
+
+
 def create_administrator(account_json: dict, db: Session):
     with db.begin():
 
@@ -177,7 +179,19 @@ def update_account(modified_account_json: dict, db: Session) -> Account:
 
 
 def get_account_by_id(account_id: int, db: Session):
-    return db.query(Account).filter(Account.id == account_id).first()
+    account = db.query(Account).filter(Account.id == account_id).first()
+
+    account_json = account.to_dict()
+
+    if account.moderator:
+        account_json["status"] = AccountType.MODERATOR.value
+    elif account.administrator:
+        account_json["status"] = AccountType.ADMINISTRATOR.value
+    else:
+        account_json["status"] = AccountType.USER.value
+
+    return account_json
+
 
 
 def get_moderators(db: Session):
@@ -203,10 +217,11 @@ def get_accounts(filter_json: dict, db: Session):
 
         accounts_json = []
         for account in accounts:
+            print(account.administrator)
             account_json = account.to_dict()
-            if account.moderator is not None:
+            if account.moderator:
                 account_json["status"] = AccountType.MODERATOR.value
-            elif account.administrator is not None:
+            elif account.administrator:
                 account_json["status"] = AccountType.ADMINISTRATOR.value
             else:
                 account_json["status"] = AccountType.USER.value
