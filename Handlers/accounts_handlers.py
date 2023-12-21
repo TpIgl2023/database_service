@@ -77,7 +77,13 @@ async def update_account_handler(request: Request, db: Session):
 
 def get_account_by_id_handler(account_id: int, db: Session):
     try:
+
         account = accounts_services.get_account_by_id(account_id, db)
+        if account is None:
+            return JSONResponse(status_code=404,
+                                content={
+                                    "message": "Account not found",
+                                })
         return JSONResponse(status_code=200,
                             content={
                                 "message": "Account retrieved successfully",
