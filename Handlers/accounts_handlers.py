@@ -40,12 +40,8 @@ async def create_account_handler(request: Request, db: Session):
 async def delete_account_handler(request: Request, db: Session):
     try:
         account_id = int(request.headers["id"])
-        account_type = AccountType(request.headers["account_type"])
 
-        if account_type != AccountType.ADMINISTRATOR:
-            accounts_services.delete_account(account_id, db)
-        else:
-            accounts_services.delete_account(account_id, db)
+        accounts_services.delete_account(account_id, db)
 
         return JSONResponse(status_code=200,
                             content={
