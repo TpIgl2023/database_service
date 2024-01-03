@@ -217,7 +217,6 @@ def get_accounts(filter_json: dict, db: Session):
 
         accounts_json = []
         for account in accounts:
-            print(account.administrator)
             account_json = account.to_dict()
             if account.moderator:
                 account_json["status"] = AccountType.MODERATOR.value

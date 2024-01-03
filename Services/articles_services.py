@@ -22,7 +22,12 @@ def create_article(article_json: dict, db: Session):
 
 
 def get_article_by_id(article_id: int, db: Session):
-    return db.query(Article).filter(Article.id == article_id).first().to_dict()
+    print("article_id: ", article_id)
+    result = db.query(Article).filter(Article.id == article_id).first()
+    print("result: ", result)
+    if result is None:
+        return None
+    return result.to_dict()
 
 
 def get_articles(db: Session):

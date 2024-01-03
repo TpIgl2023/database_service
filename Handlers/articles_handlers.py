@@ -31,12 +31,17 @@ async def get_article_handler(article_id: int, db: Session):
     try:
 
         article = articles_services.get_article_by_id(article_id, db)
-
-        return JSONResponse(status_code=200,
-                            content={
-                                "message": "Article retrieved successfully",
-                                "article": article
-                            })
+        if article is None:
+            return JSONResponse(status_code=404,
+                                content={
+                                    "message": "Article not found",
+                                })
+        else:
+            return JSONResponse(status_code=200,
+                                content={
+                                    "message": "Article retrieved successfully",
+                                    "article": article
+                                })
     except Exception as e:
         return JSONResponse(status_code=400,
                             content={
