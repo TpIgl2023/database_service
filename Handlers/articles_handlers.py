@@ -27,10 +27,14 @@ async def create_article_handler(request: Request, db: Session):
                             })
 
 
-async def get_article_handler(article_id: int, db: Session):
+async def get_article_handler(request: Request, article_id: int, db: Session):
     try:
 
-        article = articles_services.get_article_by_id(article_id, db)
+        user_id = None
+        if "user_id" in request.headers.keys():
+            user_id = int(request.headers.get("user_id"))
+
+        article = articles_services.get_article_by_id(article_id, db, user_id=user_id)
         if article is None:
             return JSONResponse(status_code=404,
                                 content={
@@ -52,10 +56,14 @@ async def get_article_handler(article_id: int, db: Session):
 
 async def get_articles_handler(request: Request, db: Session):
     try:
+        user_id = None
+        if "user_id" in request.headers.keys():
+            user_id = int(request.headers.get("user_id"))
+
         if "page" in request.headers.keys():
-            articles = articles_services.get_articles_by_page(request.headers.get("page"), db)
+            articles = articles_services.get_articles_by_page(int(request.headers.get("page")), db, user_id=user_id)
         else:
-            articles = articles_services.get_articles(db)
+            articles = articles_services.get_articles(db, user_id=user_id)
 
         return JSONResponse(status_code=200,
                             content={
@@ -121,13 +129,13 @@ def create_favorite_article_handler(request: Request, db: Session):
 
         return JSONResponse(status_code=200,
                             content={
-                                "message": "Article created successfully",
+                                "message": "Favorite article created successfully",
                                 "article": article
                             })
     except Exception as e:
         return JSONResponse(status_code=400,
                             content={
-                                "message": "Error while creating article",
+                                "message": "Error while creating favorite article",
                                 "error": str(e)
                             })
 
@@ -180,7 +188,11 @@ async def get_articles_by_ids_handler(request: Request, db: Session):
 
         body = await get_request_body(request)
 
-        articles = articles_services.get_articles_by_ids(body, db)
+        user_id = None
+        if "user_id" in request.headers.keys():
+            user_id = int(request.headers.get("user_id"))
+
+        articles = articles_services.get_articles_by_ids(body, db, user_id=user_id)
 
         return JSONResponse(status_code=200,
                             content={

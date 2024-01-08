@@ -10,6 +10,16 @@ from datetime import date
 PAGE_SIZE = 12
 
 
+def _check_if_liked(article_id: int, user_id: int, db: Session) -> bool:
+    return db.query(Favorite)\
+               .filter(
+        and_(
+            Favorite.article_id == article_id,
+            Favorite.user_id == user_id
+        )
+    ).first() is not None
+
+
 def create_article(article_json: dict, db: Session):
     with db.begin():
         article = Article.from_dict(article_json)
@@ -21,31 +31,47 @@ def create_article(article_json: dict, db: Session):
     return article.to_dict()
 
 
-def get_article_by_id(article_id: int, db: Session):
-    print("article_id: ", article_id)
-    result = db.query(Article).filter(Article.id == article_id).first()
-    print("result: ", result)
-    if result is None:
+def get_article_by_id(article_id: int, db: Session, user_id: int = None):
+    result = db.query(Article).filter(Article.id == article_id)
+
+    if result.first() is None:
         return None
-    return result.to_dict()
+
+    result_json: dict = result.first().to_dict()
+
+    if user_id is not None:
+        result_json.update({
+            "isFavorite": _check_if_liked(article_id, user_id, db)
+        })
+
+    return result_json
 
 
-def get_articles(db: Session):
-    articles = db.query(Article).order_by(Article.publishDate.desc()).all()
-
+def _build_articles_json_list(articles: list, db: Session, user_id: int = None):
     articles_json = []
     for article in articles:
-        articles_json.append(article.to_dict())
+        article_json = article.to_dict()
+        if user_id is not None:
+            article_json.update({
+                "isFavorite": _check_if_liked(article.id, user_id, db)
+            })
+        articles_json.append(article_json)
 
     return articles_json
 
 
-def get_articles_by_page(page: int, db: Session):
+def get_articles(db: Session, user_id: int = None):
+    articles = db.query(Article).order_by(Article.publishDate.desc()).all()
+
+    articles_json = _build_articles_json_list(articles, db, user_id)
+
+    return articles_json
+
+
+def get_articles_by_page(page: int, db: Session, user_id: int = None):
     articles = db.query(Article).offset(page*PAGE_SIZE).limit(PAGE_SIZE).order_by(Article.publishDate.desc()).all()
 
-    articles_json = []
-    for article in articles:
-        articles_json.append(article.to_dict())
+    articles_json = _build_articles_json_list(articles, db, user_id=user_id)
 
     return articles_json
 
@@ -174,22 +200,22 @@ def get_favorite_articles_by_page(user_id: int, page: int, db: Session):
     return articles_json
 
 
-def get_articles_by_ids(filter_json: dict, db: Session):
+def get_articles_by_ids(filter_json: dict, db: Session, user_id: int = None):
 
     articles_filter = _build_articles_filter(filter_json)
 
     articles = db.query(Article).filter(articles_filter).order_by(Article.publishDate.desc()).all()
 
-    articles_json = []
-    for article in articles:
-        articles_json.append(article.to_dict())
+    articles_json = _build_articles_json_list(articles, db, user_id=user_id)
 
     return articles_json
 
 
 def _build_articles_filter(filter_json):
-    account_filter = Article.id.in_(filter_json["ids"])
+    account_filter = True
 
+    if check_field_existence(filter_json, "ids"):
+        account_filter = and_(account_filter, Article.id.in_(filter_json["ids"]))
     if check_field_existence(filter_json, "publishDate"):
         account_filter = and_(account_filter, Article.publishDate.between(date.fromisoformat(filter_json["publishDate"]["from"]), date.fromisoformat(filter_json["publishDate"]["to"])))
     if check_field_existence(filter_json, "authors"):

@@ -49,8 +49,8 @@ async def get_articles_by_ids(request: Request, db: Session = Depends(get_db)):
 
 
 @articlesRouter.get("/{article_id}")
-async def get_article_by_id(article_id: int, db: Session = Depends(get_db)):
-    return await articles_handler.get_article_handler(article_id, db)
+async def get_article_by_id(article_id: int, request: Request, db: Session = Depends(get_db)):
+    return await articles_handler.get_article_handler(request, article_id, db)
 
 
 
