@@ -102,7 +102,6 @@ async def update_article_handler(request: Request, db: Session):
     try:
 
         body = await get_request_body(request)
-
         article = articles_services.update_article(body, db)
 
         return JSONResponse(status_code=200,

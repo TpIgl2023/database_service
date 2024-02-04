@@ -11,7 +11,7 @@ async def get_request_body(request):
     body_str = body_bytes.decode("utf-8")
     if not body_str:
         return {}
-    print(body_str)
+    # print(body_str)
     try:
         body = json.loads(body_str)
         return body

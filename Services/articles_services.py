@@ -112,7 +112,7 @@ def _update_article(article_modifications_json: dict, db: Session):
     if check_field_existence(article_modifications_json, "authors"):
         original_account.authors = "|".join(article_modifications_json["authors"])
     if check_field_existence(article_modifications_json, "institutions"):
-        original_account.authors = "|".join(article_modifications_json["institutions"])
+        original_account.institutions = "|".join(article_modifications_json["institutions"])
     if check_field_existence(article_modifications_json, "keywords"):
         original_account.keywords = "|".join(article_modifications_json["keywords"])
     if check_field_existence(article_modifications_json, "text"):
@@ -123,6 +123,8 @@ def _update_article(article_modifications_json: dict, db: Session):
         original_account.references = "|".join(article_modifications_json["references"])
     if check_field_existence(article_modifications_json, "publishDate"):
         original_account.publishDate = date.fromisoformat(article_modifications_json["publishDate"])
+
+    # print(original_account.to_dict())
 
     return original_account
 
